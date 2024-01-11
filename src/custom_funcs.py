@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.express as px
 import statsmodels.api as sm
 import scipy.stats as stats
 import math
@@ -108,37 +109,24 @@ def grafico_bloxpot(lista, data):
     plt.tight_layout()
 
     plt.show()
+
+
+def grafico_bloxpot_categorias(data, cat, num):
+    fig = px.box(data,
+                x=cat,
+                y=num,
+                color=cat,
+                color_discrete_sequence=px.colors.qualitative.Set2)
+
+    fig.update_layout(
+        xaxis=dict(title=cat),
+        yaxis=dict(title=num),
+        title= num + " per " + cat,
+        showlegend=True
+    )
+
+    fig.show()
   
-
-
-def get_stats(X, y):
-    x_new = sm.add_constant(X)
-    resultados = sm.GLM(y, x_new, family=sm.families.Poisson()).fit()
-    print(resultados.summary())
-    return resultados
-
-
-def forward_regression(X, y):
-    initial_list = []
-    included = list(initial_list)
-    while True:
-        changed=False
-        excluded = list(set(X.columns)-set(included))
-        new_pval = pd.Series(index=excluded)
-        for new_column in excluded:
-            model = sm.GLM(y, sm.add_constant(pd.DataFrame(X[included+[new_column]])), family=sm.families.Poisson()).fit()
-            new_pval[new_column] = model.pvalues[new_column]
-        best_pval = new_pval.min()
-        if best_pval < 0.05:
-            best_feature = new_pval.idxmin()
-            included.append(best_feature)
-            changed=True
-
-        if not changed:
-            break
-
-    return included
-
 
 def feature_importance(model, X_train):
 
